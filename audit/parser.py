@@ -31,7 +31,7 @@ import pdfplumber
 # À changer à chaque évolution du parser : la page passe cette valeur à sa fonction
 # en @st.cache_data, ce qui invalide les résultats calculés avec l'ancienne version
 # (sinon Streamlit renvoie d'anciens objets, ex. Batiment sans attribut "auditeur").
-PARSER_VERSION = "2026-10-28"
+PARSER_VERSION = "2026-10-30"
 
 # ---------------------------------------------------------------------------
 # Reconstruction du texte par position
@@ -245,6 +245,7 @@ def cep_to_etiquette(cep: float | None) -> str | None:
 
 SPEC_SPECS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"(?:R\s*(?:>=|>|=|≥)|[Rr]ésistance\s+thermique[^\n.]{0,40}?(?:>=|>|=|≥))\s*([\d,.]+)\s*m[²2]\.?\s*K\s*/\s*W"), "R ≥ {0} m².K/W"),
+    (re.compile(r"R[ée]sistance de l['’]isolant\s*(?:>=|>|=|≥)\s*([\d,.]+)\s*m[²2]\.?\s*K\s*/\s*W", re.I), "R ≥ {0} m².K/W"),
     (re.compile(r"Th\s*(\d+)(?:\s+(\d+)\s*mm)?", re.I), None),  # géré à part (2 groupes optionnels)
     (re.compile(r"S?COP\s*(?:du\s+[^\n.]{0,40}?)?\s*(?:>=|>|=|≥|≤)?\s*([\d,.]+)", re.I), "COP ≥ {0}"),
     # Uw/Sw sont parfois donnés sans unité explicite (ex. Pleiades : "Uw de la baie ≤ 1.3")
@@ -258,6 +259,7 @@ SPEC_SPECS: list[tuple[re.Pattern, str]] = [
 ]
 
 RE_QTY_SURFACE = re.compile(r"[Ss]urface\s+concern[ée]e?\s*=?\s*\[?([\d,.]+)\]?\s*m[²2]")
+RE_QTY_NB_MENUISERIES = re.compile(r"Nombre de (?:fen[êe]tres|portes|menuiseries)[^:\d]{0,30}:?\s*(\d+)", re.I)
 RE_QTY_SURFACE_FALLBACK = re.compile(r"([\d,.]+)\s*m[²2](?!\.?\s*K\s*/\s*W)\b")
 RE_QTY_UNITE = re.compile(r"\b(\d+)\s*(?:u\.|unit[ée]s?)\b", re.I)
 
@@ -300,6 +302,9 @@ def _extract_quantite(text: str) -> str:
     m = RE_QTY_SURFACE_FALLBACK.search(text)
     if m:
         return f"{m.group(1)} m²"
+    m = RE_QTY_NB_MENUISERIES.search(text)
+    if m:
+        return f"{m.group(1)} u."
     m = RE_QTY_UNITE.search(text)
     if m:
         return f"{m.group(1)} u."
@@ -586,6 +591,9 @@ def parse_travaux_block(block: str) -> list[Travail]:
                 break
 
         description = re.sub(r"\s+", " ", chunk).strip()
+        # Pleiades : "titre\n≈ 422500€\ndétails" -> le titre est la 1re ligne, sans point final.
+        m_titre = re.match(r"([^\n]+)\n\s*≈", chunk)
+        titre = m_titre.group(1).strip() if m_titre else None
 
         # Poste commun chauffage + ECS (ANALYSIMMO) : une ligne pour chacun des deux.
         postes = [poste_label]
@@ -596,7 +604,7 @@ def parse_travaux_block(block: str) -> list[Travail]:
             travaux.append(
                 Travail(
                     poste=poste,
-                    nature_courte=_first_sentence(description),
+                    nature_courte=titre or _first_sentence(description),
                     caracteristiques=_extract_specs(description),
                     quantite=_extract_quantite(description),
                     description=description[:600],
