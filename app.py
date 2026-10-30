@@ -11,6 +11,8 @@ st.set_page_config(page_title="Tableau de bord", page_icon="🏢", layout="wide"
 OUTILS = [
     ("outils/audit_renovation.py", "Audit rénovation globale", "🏢",
      "Analyse d'un audit énergétique PDF : scénarios, travaux, export Excel et PDF bailleur."),
+    ("outils/suivi_cee.py", "Suivi CEE", "📑",
+     "Export ODICEE (.xlsx) vers classeurs Excel de suivi des dossiers (outil HTML intégré)."),
     # ("outils/mon_outil.py", "Mon outil", "🧰", "Ce qu'il fait."),
 ]
 
