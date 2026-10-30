@@ -16,7 +16,8 @@ Attention : un dépôt public rend le code public ; les PDF déposés ne sont ja
 | Besoin | Fichier |
 |---|---|
 | Nouveau logiciel d'audit / regex cassée | `audit/parser.py` (penser à changer `PARSER_VERSION`) |
-| Interface, champs, onglets | `app.py` |
+| Ajouter un outil au tableau de bord | créer `outils/mon_outil.py`, l'ajouter à `OUTILS` dans `app.py` |
+| Interface de l'outil audit | `outils/audit_renovation.py` |
 | Colonnes du comparatif | `audit/synthese.py` |
 | Excel (cellules, lignes) | `audit/excel_export.py` |
 | PDF bailleur | `audit/pdf_export.py` |
