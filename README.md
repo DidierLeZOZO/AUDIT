@@ -16,7 +16,10 @@ Attention : un dépôt public rend le code public ; les PDF déposés ne sont ja
 | Besoin | Fichier |
 |---|---|
 | Nouveau logiciel d'audit / regex cassée | `audit/parser.py` (penser à changer `PARSER_VERSION`) |
-| Ajouter un outil au tableau de bord | créer `outils/mon_outil.py`, l'ajouter à `OUTILS` dans `app.py` |
+| Ajouter un outil | créer `outils/mon_outil.py` + une ligne dans `registre.py` (menu, accueil, recherche automatiques) |
+| Apparence (couleurs, arrondis) | `.streamlit/config.toml` (thème clair/sombre) |
+| Habillage commun (cartes, étapes, pastilles) | `ui/style.css`, `ui/composants.py` |
+| Contrôles de cohérence de l'audit | `audit/controles.py` (une fonction par règle) |
 | Interface de l'outil audit | `outils/audit_renovation.py` |
 | Colonnes du comparatif | `audit/synthese.py` |
 | Excel (cellules, lignes) | `audit/excel_export.py` |
@@ -31,4 +34,6 @@ C4 bénéficiaire, F4 scénario, C5 adresse, F5 date, et les travaux à partir d
 ## Tests
 ```bash
 pytest
+# avec un vrai PDF (non versionné) :
+AUDIT_EXEMPLE_PDF=/chemin/audit.pdf pytest
 ```

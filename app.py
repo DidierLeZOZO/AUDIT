@@ -1,33 +1,51 @@
 """Tableau de bord — point d'entrée.   Lancer : streamlit run app.py
 
-Ajouter un outil : créer outils/mon_outil.py (un script Streamlit ordinaire), puis
-l'ajouter à la liste OUTILS ci-dessous.
+Ajouter un outil : créer outils/mon_outil.py, puis l'inscrire dans registre.py.
+Apparence : .streamlit/config.toml (thème) et ui/style.css (habillage commun).
 """
+from pathlib import Path
+
 import streamlit as st
 
-st.set_page_config(page_title="Tableau de bord", page_icon="🏢", layout="wide")
+from audit.parser import PARSER_VERSION
+from registre import OUTILS, par_categorie, rechercher
+from ui import appliquer_style, carte_outil, en_tete, etapes
 
-# (fichier, titre dans le menu, icône, description affichée sur l'accueil)
-OUTILS = [
-    ("outils/audit_renovation.py", "Audit rénovation globale", "🏢",
-     "Analyse d'un audit énergétique PDF : scénarios, travaux, export Excel et PDF bailleur."),
-    ("outils/suivi_cee.py", "Suivi CEE", "📑",
-     "Export ODICEE (.xlsx) vers classeurs Excel de suivi des dossiers (outil HTML intégré)."),
-    # ("outils/mon_outil.py", "Mon outil", "🧰", "Ce qu'il fait."),
-]
+st.set_page_config(page_title="Pilotage CEE", page_icon="🏢", layout="wide")
+st.logo(str(Path(__file__).parent / "assets" / "logo.svg"), size="large")
+appliquer_style()
 
 
-def accueil():
-    st.title("🏢 Tableau de bord")
-    st.caption("Choisis un outil dans le menu de gauche ou ci-dessous.")
+def accueil() -> None:
+    en_tete("Pilotage CEE", "Vos outils de suivi et d'audit au même endroit.", "🏠")
+
+    etapes([("Choisir un outil", "dans le menu ou ci-dessous"),
+            ("Déposer un fichier", "PDF d'audit ou export ODICEE"),
+            ("Vérifier et exporter", "tout est modifiable avant export")], actuelle=0)
+
+    q = st.text_input("Rechercher un outil", placeholder="🔍  audit, odicee, relance, pdf…",
+                      label_visibility="collapsed")
+    trouves = rechercher(q)
+    if not trouves:
+        st.info(f"Aucun outil ne correspond à « {q} ».")
     cols = st.columns(3)
-    for i, (chemin, titre, icone, desc) in enumerate(OUTILS):
-        with cols[i % 3].container(border=True):
-            st.subheader(f"{icone} {titre}")
-            st.write(desc)
-            st.page_link(chemin, label="Ouvrir", icon="➡️")
+    for i, o in enumerate(trouves):
+        with cols[i % 3]:
+            carte_outil(o)
+
+    with st.expander("Ajouter un nouvel outil"):
+        st.markdown("1. Créer `outils/mon_outil.py` (script Streamlit ordinaire).\n"
+                    "2. L'inscrire dans `registre.py` : le menu, l'accueil et la recherche se mettent à jour.\n"
+                    "3. Pour un outil HTML autonome, copier le modèle de `outils/suivi_cee.py`.")
 
 
-pages = [st.Page(accueil, title="Accueil", icon="🏠", default=True)]
-pages += [st.Page(c, title=t, icon=i, url_path=c.split("/")[-1][:-3]) for c, t, i, _ in OUTILS]
-st.navigation(pages).run()
+pages = {"": [st.Page(accueil, title="Accueil", icon="🏠", default=True)]}
+for cat, outils in par_categorie().items():
+    pages[cat] = [st.Page(o.fichier, title=o.titre, icon=o.icone, url_path=o.url_path) for o in outils]
+nav = st.navigation(pages)
+
+with st.sidebar:
+    st.html(f'<div class="side-foot">🔒 Les fichiers déposés sont traités en mémoire, jamais stockés.<br>'
+            f'{len(OUTILS)} outils · analyseur {PARSER_VERSION}</div>')
+
+nav.run()

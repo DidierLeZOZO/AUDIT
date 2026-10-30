@@ -31,7 +31,7 @@ import pdfplumber
 # À changer à chaque évolution du parser : la page passe cette valeur à sa fonction
 # en @st.cache_data, ce qui invalide les résultats calculés avec l'ancienne version
 # (sinon Streamlit renvoie d'anciens objets, ex. Batiment sans attribut "auditeur").
-PARSER_VERSION = "2026-10-30"
+PARSER_VERSION = "2026-10-31"
 
 # ---------------------------------------------------------------------------
 # Reconstruction du texte par position
@@ -400,6 +400,8 @@ class Batiment:
     cef_initial: float | None = None
     etiquette_initiale: str | None = None
     auditeur: Auditeur = field(default_factory=Auditeur)
+    # Le document se déclare lui-même « Audit énergétique non réglementaire » (pied de page / garde).
+    non_reglementaire: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -719,5 +721,6 @@ def parse_audit_pdf(pdf_bytes: bytes) -> tuple[Batiment, list[Scenario]]:
     text = reflow_pdf_text(pdf_bytes)
     batiment = parse_batiment(text)
     batiment.auditeur = parse_auditeur(text)
+    batiment.non_reglementaire = bool(re.search(r"audit\s+[ée]nerg[ée]tique\s+non\s+r[ée]glementaire", text, re.I))
     scenarios = parse_scenarios(text)
     return batiment, scenarios
