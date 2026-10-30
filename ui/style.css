@@ -54,14 +54,16 @@ hr { margin: 1.4rem 0; opacity: .5; }
 .stepper .st.done { opacity: .9; }
 .stepper .st.done .n { background: var(--ok); color: #fff; }
 
-/* Cartes (conteneurs avec bordure) */
-[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVerticalBlock"] > .stElementContainer .card-marker),
-.card { transition: box-shadow .15s, transform .15s, border-color .15s; }
-[data-testid="stVerticalBlockBorderWrapper"]:has(.card-marker):hover { border-color: var(--acc); box-shadow: 0 6px 22px rgba(15,118,110,.14); transform: translateY(-1px); }
-.card-marker { display: none; }
-.card-desc { font-size: .92rem; opacity: .85; line-height: 1.5; margin: .2rem 0 .1rem; min-height: 4.2em; }
-.card-cat { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; opacity: .6; font-weight: 700; }
-.card-io { font-size: .8rem; opacity: .75; margin-top: .35rem; }
+/* Tuiles d'outils : le lien du titre est étiré sur toute la carte */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) { position: relative; transition: border-color .15s, box-shadow .15s, background .15s; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker):hover { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 5%, transparent); box-shadow: 0 4px 16px rgba(15,118,110,.12); }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) { gap: .25rem; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) [data-testid="stPageLink-NavLink"] { padding: 0; font-weight: 700; font-size: 1rem; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) [data-testid="stPageLink-NavLink"]::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) [data-testid="stPageLink-NavLink"]:hover { background: transparent; }
+.tile-marker { display: none; }
+.tile-desc { font-size: .82rem; opacity: .78; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tile-cat { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; opacity: .55; font-weight: 700; margin-top: .15rem; }
 
 /* Indicateurs */
 [data-testid="stMetric"] { padding: .2rem .1rem; }
@@ -90,4 +92,34 @@ button[data-baseweb="tab"] { border-radius: .6rem .6rem 0 0; padding-inline: 1re
 @media (max-width: 720px) {
   .stMainBlockContainer { padding-top: 1rem; }
   .hero { flex-wrap: wrap; } .hero .tags { margin-left: 0; justify-content: flex-start; }
+}
+
+/* Rail d'icônes : barre latérale « fermée » = colonne étroite (logo + une icône par outil) */
+@media (min-width: 900px) {
+  [data-testid="stSidebar"][data-collapsed="true"] { transform: none !important; width: 64px !important; min-width: 64px !important; max-width: 64px !important; }
+  [data-collapsed="true"] [data-testid="stSidebarHeader"] { padding: .9rem 0 .4rem; justify-content: center; flex-direction: column; gap: .5rem; }
+  [data-collapsed="true"] [data-testid="stSidebarLogo"] { width: 34px; height: 34px; object-fit: cover; object-position: left center; margin: 0; }
+  [data-collapsed="true"] [data-testid="stSidebarCollapseButton"] { display: none; }
+  [data-collapsed="true"] [data-testid="stNavSectionHeader"],
+  [data-collapsed="true"] [data-testid="stSidebarUserContent"],
+  [data-collapsed="true"] [data-testid="stSidebarResizeHandle"] { display: none; }
+  [data-collapsed="true"] [data-testid="stSidebarContent"] { padding-inline: 0; overflow: visible; }
+  [data-collapsed="true"] [data-testid="stSidebarNavItems"] { padding: 0 .55rem; margin-top: 2.6rem; }
+  [data-testid="stHeaderLogo"] { display: none; }
+  [data-collapsed="true"] [data-testid="stSidebarNavLink"] { justify-content: center; padding: .6rem 0; font-size: 1.15rem; }
+  /* libellé -> infobulle au survol (fixed + left seul : reste à la hauteur de l'icône, hors du rail) */
+  [data-collapsed="true"] [data-testid="stSidebarNavLink"] > span:nth-child(2) { position: fixed; left: 72px; visibility: hidden; opacity: 0; z-index: 1000;
+        padding: .3rem .7rem; border-radius: .5rem; background: #16262B; color: #fff; white-space: nowrap; font-size: .85rem; transition: opacity .12s; pointer-events: none; }
+  [data-collapsed="true"] [data-testid="stSidebarNavLink"]:hover > span:nth-child(2) { visibility: visible; opacity: 1; }
+  [data-collapsed="true"] [data-testid="stSidebarNavLink"] > span:nth-child(2) p { margin: 0; color: #fff; }
+  /* bouton « déplier » : collé au bord du rail, en haut (sous le rail il serait masqué par la barre) */
+  [data-testid="stExpandSidebarButton"] { position: fixed; left: 76px; top: 16px; }
+}
+
+/* Tuiles : le conteneur du lien ne doit pas être positionné, sinon le lien étiré ne couvre que sa ligne */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) > [data-testid="stElementContainer"] { position: static !important; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .tile-marker) [data-testid="stPageLink-NavLink"] p { font-weight: 700; }
+@media (min-width: 900px) {
+  [data-testid="stExpandSidebarButton"] { opacity: 1 !important; visibility: visible !important; width: 28px; height: 28px; border-radius: .5rem; }
+  [data-testid="stExpandSidebarButton"]:hover { background: var(--soft); }
 }

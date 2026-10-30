@@ -9,7 +9,7 @@ import streamlit as st
 
 from audit.parser import PARSER_VERSION
 from registre import OUTILS, par_categorie, rechercher
-from ui import appliquer_style, carte_outil, en_tete, etapes
+from ui import appliquer_style, carte_outil, en_tete
 
 st.set_page_config(page_title="Pilotage CEE", page_icon="🏢", layout="wide")
 st.logo(str(Path(__file__).parent / "assets" / "logo.svg"), size="large")
@@ -19,18 +19,14 @@ appliquer_style()
 def accueil() -> None:
     en_tete("Pilotage CEE", "Vos outils de suivi et d'audit au même endroit.", "🏠")
 
-    etapes([("Choisir un outil", "dans le menu ou ci-dessous"),
-            ("Déposer un fichier", "PDF d'audit ou export ODICEE"),
-            ("Vérifier et exporter", "tout est modifiable avant export")], actuelle=0)
-
     q = st.text_input("Rechercher un outil", placeholder="🔍  audit, odicee, relance, pdf…",
                       label_visibility="collapsed")
     trouves = rechercher(q)
     if not trouves:
         st.info(f"Aucun outil ne correspond à « {q} ».")
-    cols = st.columns(3)
+    cols = st.columns(4)
     for i, o in enumerate(trouves):
-        with cols[i % 3]:
+        with cols[i % 4]:
             carte_outil(o)
 
     with st.expander("Ajouter un nouvel outil"):

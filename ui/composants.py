@@ -51,12 +51,10 @@ def etapes(libelles: list[tuple[str, str]], actuelle: int) -> None:
 
 
 def carte_outil(o) -> None:
+    """Tuile compacte : tout le cadre est cliquable (le lien du titre est étiré sur la carte en CSS)."""
     with st.container(border=True):
-        st.html('<span class="card-marker"></span>')
+        st.html('<span class="tile-marker"></span>')
+        st.page_link(o.fichier, label=o.titre, icon=o.icone)
         statut = badge("Bêta", "warn") if o.statut == "beta" else ""
-        st.html(f'<div class="card-cat">{escape(o.categorie)}</div>'
-                f'<div style="font-size:1.15rem;font-weight:700;margin:.2rem 0">{escape(o.icone)} {escape(o.titre)} {statut}</div>')
-        st.html(f'<div class="card-desc">{escape(o.description)}</div>')
-        if o.entree or o.sortie:
-            st.html(f'<div class="card-io">⬇️ {escape(o.entree)}<br>⬆️ {escape(o.sortie)}</div>')
-        st.page_link(o.fichier, label="Ouvrir l'outil", icon="➡️", width="stretch")
+        st.html(f'<div class="tile-desc">{escape(o.description)}</div>'
+                f'<div class="tile-cat">{escape(o.categorie)} {statut}</div>')
