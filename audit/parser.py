@@ -31,7 +31,7 @@ import pdfplumber
 # À changer à chaque évolution du parser : la page passe cette valeur à sa fonction
 # en @st.cache_data, ce qui invalide les résultats calculés avec l'ancienne version
 # (sinon Streamlit renvoie d'anciens objets, ex. Batiment sans attribut "auditeur").
-PARSER_VERSION = "2026-10-31"
+PARSER_VERSION = "2026-10-31b"
 
 # ---------------------------------------------------------------------------
 # Reconstruction du texte par position
@@ -370,6 +370,13 @@ class Etape:
     economie_pct: float | None = None
     etiquette_apres: str | None = None
     travaux: list[Travail] = field(default_factory=list)
+    ges_apres: float | None = None              # kgCO2eq/m².an
+    energie_chauffage: str | None = None        # énergie après travaux (voir referentiel.LIBELLES_ENERGIE)
+    energie_ecs: str | None = None
+    equipements_installes: list[str] = field(default_factory=list)  # ex. ["reseau"], ["chaudiere_gaz"]
+    cep_avec_pv: float | None = None            # Cep AVEC déduction PV, s'il diffère (info)
+    fiabilite: dict[str, str] = field(default_factory=dict)        # champ -> concordant | unique | divergent
+    bloc: str = field(default="", repr=False)   # texte source de l'étape (vérification)
 
 
 @dataclass
@@ -387,6 +394,7 @@ class Auditeur:
     reference_audit: str | None = None  # N° ADEME, sinon référence interne — souvent absente
     logiciel: str | None = None
     version_logiciel: str | None = None  # souvent absente
+    qualification: str | None = None     # ex. « OPQIBI 1905 »
 
 
 @dataclass
@@ -402,6 +410,16 @@ class Batiment:
     auditeur: Auditeur = field(default_factory=Auditeur)
     # Le document se déclare lui-même « Audit énergétique non réglementaire » (pied de page / garde).
     non_reglementaire: bool = False
+    ges_initial: float | None = None             # kgCO2eq/m².an
+    shab: float | None = None                    # surface HABITABLE si l'audit la donne
+    type_bien: str | None = None                 # libellé lu (« immeuble collectif »…)
+    code_postal: str | None = None
+    annee_construction: int | None = None
+    date_etablissement: str | None = None        # date d'établissement lue en tête du rapport
+    energie_chauffage: str | None = None         # énergie AVANT travaux
+    energie_ecs: str | None = None
+    mention_extension: bool = False              # surélévation / combles aménagés / extension
+    fiabilite: dict[str, str] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -676,7 +694,7 @@ def parse_scenarios(text: str) -> list[Scenario]:
 
 
 def _parse_etape(libelle: str, block: str) -> Etape:
-    e = Etape(libelle=libelle)
+    e = Etape(libelle=libelle, bloc=block)
 
     # La section réglementaire "Résultats après travaux" (présente sur les deux logiciels
     # testés) regroupe économies %, CEP/CEF finaux et coût total : on cible cette fenêtre
@@ -718,7 +736,10 @@ def _parse_etape(libelle: str, block: str) -> Etape:
 # ---------------------------------------------------------------------------
 
 def parse_audit_pdf(pdf_bytes: bytes) -> tuple[Batiment, list[Scenario]]:
-    text = reflow_pdf_text(pdf_bytes)
+    return parse_texte(reflow_pdf_text(pdf_bytes))
+
+
+def parse_texte(text: str) -> tuple[Batiment, list[Scenario]]:
     batiment = parse_batiment(text)
     batiment.auditeur = parse_auditeur(text)
     batiment.non_reglementaire = bool(re.search(r"audit\s+[ée]nerg[ée]tique\s+non\s+r[ée]glementaire", text, re.I))

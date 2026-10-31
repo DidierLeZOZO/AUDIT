@@ -123,3 +123,28 @@ button[data-baseweb="tab"] { border-radius: .6rem .6rem 0 0; padding-inline: 1re
   [data-testid="stExpandSidebarButton"] { opacity: 1 !important; visibility: visible !important; width: 28px; height: 28px; border-radius: .5rem; }
   [data-testid="stExpandSidebarButton"]:hover { background: var(--soft); }
 }
+
+/* Verdict BAR-TH-177 */
+.verdict { display: flex; gap: 1.2rem; align-items: center; padding: 1rem 1.2rem; border-radius: 1rem; border: 1px solid var(--line);
+           border-left: 6px solid var(--c, #8a979b); background: color-mix(in srgb, var(--c, #8a979b) 7%, transparent); margin-bottom: .8rem; }
+.verdict.eligible { --c: var(--ok); } .verdict.reserve { --c: var(--warn); } .verdict.non_eligible { --c: var(--bad); }
+.verdict .v-main { flex: 1; }
+.verdict .v-label { font-size: 1.35rem; font-weight: 800; color: var(--c); line-height: 1.2; }
+.verdict .v-sub { opacity: .8; font-size: .9rem; margin-top: .15rem; }
+.verdict .v-vol { text-align: right; }
+.verdict .v-vol b { font-size: 1.6rem; letter-spacing: -.02em; display: block; line-height: 1.1; }
+.verdict .v-vol small { opacity: .7; }
+.crit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .5rem; margin: .4rem 0 .6rem; }
+.crit { border: 1px solid var(--line); border-radius: .7rem; padding: .55rem .7rem; }
+.crit .t { font-size: .75rem; opacity: .7; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.crit .v { font-weight: 700; font-size: 1.02rem; margin-top: .1rem; }
+.crit.ok { border-color: color-mix(in srgb, var(--ok) 45%, transparent); background: color-mix(in srgb, var(--ok) 6%, transparent); }
+.crit.ko { border-color: color-mix(in srgb, var(--bad) 50%, transparent); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+.crit.na { opacity: .75; border-style: dashed; }
+.ctl.reserve { border-color: color-mix(in srgb, var(--warn) 50%, transparent); background: color-mix(in srgb, var(--warn) 9%, transparent); }
+.ctl.bloquant { border-color: color-mix(in srgb, var(--bad) 50%, transparent);  background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.ctl.manquant { border-color: color-mix(in srgb, var(--bad) 35%, transparent); border-style: dashed; }
+.ctl.info { opacity: .85; }
+.ctl .src { opacity: .55; font-size: .74rem; margin-left: .3rem; }
+.fiab { font-size: .72rem; font-weight: 700; padding: .05rem .45rem; border-radius: 999px; border: 1px solid var(--line); }
+.fiab.concordant { color: var(--ok); } .fiab.unique { color: var(--warn); } .fiab.divergent, .fiab.absent { color: var(--bad); }

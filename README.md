@@ -19,7 +19,10 @@ Attention : un dépôt public rend le code public ; les PDF déposés ne sont ja
 | Ajouter un outil | créer `outils/mon_outil.py` + une ligne dans `registre.py` (menu, accueil, recherche automatiques) |
 | Apparence (couleurs, arrondis) | `.streamlit/config.toml` (thème clair/sombre) |
 | Habillage commun (cartes, étapes, pastilles) | `ui/style.css`, `ui/composants.py` |
-| Contrôles de cohérence de l'audit | `audit/controles.py` (une fonction par règle) |
+| Seuils et coefficients BAR-TH-177 | `audit/referentiel.py` (un seul endroit) |
+| Règles d'éligibilité BAR-TH-177 | `audit/regles.py` (ids = `docs/regles_BAR-TH-177.md`) |
+| Reconnaissance étude thermique / DPE / multi-bâtiments | `audit/document.py` |
+| Lecture GES, énergies, équipements | `audit/enrichissement.py` |
 | Interface de l'outil audit | `outils/audit_renovation.py` |
 | Colonnes du comparatif | `audit/synthese.py` |
 | Excel (cellules, lignes) | `audit/excel_export.py` |
